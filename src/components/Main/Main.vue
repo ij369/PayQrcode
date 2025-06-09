@@ -11,14 +11,18 @@
               :autoUpload="false"
               theme="custom"
               :onChange="alipayChange"
-              :trigger-button-props="{ theme: 'primary', variant: 'base' }"
+              :trigger-button-props="{ 
+                theme: 'primary', 
+                variant: 'base', 
+                content: alipayVal ? '重新选择支付宝收款码' : '选择支付宝收款码' 
+              }"
             />
           </template>
           <t-input
             :status="alipayVal ? 'success' : ''"
             readonly
             v-model="alipayVal"
-            placeholder="请上传 支付宝 收款码"
+            placeholder="请上传 支付宝 收款码 👉"
           />
         </t-input-adornment>
       </div>
@@ -32,24 +36,28 @@
               :autoUpload="false"
               theme="custom"
               :onChange="wechatChange"
-              :trigger-button-props="{ theme: 'success', variant: 'base' }"
+              :trigger-button-props="{ 
+                theme: 'success', 
+                variant: 'base', 
+                content: wechatVal ? '重新选择微信收款码' : '选择微信收款码' 
+              }"
             />
           </template>
           <t-input
             :status="wechatVal ? 'success' : ''"
             readonly
             v-model="wechatVal"
-            placeholder="请上传 微信 收款码"
+            placeholder="请上传 微信 收款码 👉"
           />
         </t-input-adornment>
       </div>
       <div class="item flex">
         <t-radio-group size="small" v-model="themeStatus">
           <t-radio-button value="none">默认</t-radio-button>
-          <t-radio-button value="theme_a">主题A</t-radio-button>
-          <t-radio-button value="theme_b">主题B</t-radio-button>
-          <t-radio-button value="theme_c">主题C</t-radio-button>
-          <t-radio-button value="theme_d">主题D</t-radio-button>
+          <t-radio-button value="theme_a">主题 A</t-radio-button>
+          <t-radio-button value="theme_b">主题 B</t-radio-button>
+          <t-radio-button value="theme_c">主题 C</t-radio-button>
+          <t-radio-button value="theme_d">主题 D</t-radio-button>
         </t-radio-group>
       </div>
     </section>
@@ -82,7 +90,7 @@
           <path d="M9 19l3 3l3 -3" />
         </svg>
       </template>
-      下载二维码
+      &nbsp;下载二维码
     </t-button>
   </main>
 </template>
@@ -103,14 +111,27 @@ const alipayQrcodeImg = ref<string>()
 // 支付宝收款码白名单
 const alipayWhiteList = ['alipay.com']
 const alipayChange = async (v: any) => {
-  alipayFileList.value = v && v.length ? v[0].raw : alipayFileList.value
-  if (!alipayFileList.value) return
-  const res = await loadImg(alipayFileList.value)
-  if (!res || !alipayWhiteList.some((i: string) => String(res).toLowerCase().includes(i)))
+  const currentFile = v && v.length ? v[0].raw : alipayFileList.value
+  if (!currentFile) return
+  const res = await loadImg(currentFile)
+  if (!res) {
     return NotifyPlugin.error({
       title: 'Error',
-      content: '请上传正确的 支付宝 收款码',
+      content: '无法识别二维码内容',
     })
+  }
+  
+  // 如果包含微信特征, 则自动填入微信输入框
+  if (wechatWhiteList.some((i: string) => String(res).toLowerCase().includes(i))) {
+    wechatFileList.value = currentFile
+    wechatVal.value = String(res)
+    wechatQrcodeImg.value = await drawQR(wechatVal.value)
+    showQrcode()
+    return
+  }
+  
+  // 其他情况默认为支付宝收款码
+  alipayFileList.value = currentFile
   alipayVal.value = String(res)
   alipayQrcodeImg.value = await drawQR(alipayVal.value, true)
   showQrcode()
@@ -123,14 +144,27 @@ const wechatQrcodeImg = ref<string>()
 // 微信收款码白名单
 const wechatWhiteList = ['wxp://', 'weixin.qq.com', 'wechatpay.cn']
 const wechatChange = async (v: any) => {
-  wechatFileList.value = v && v.length ? v[0].raw : wechatFileList.value
-  if (!wechatFileList.value) return
-  const res = await loadImg(wechatFileList.value)
-  if (!res || !wechatWhiteList.some((i: string) => String(res).toLowerCase().includes(i)))
+  const currentFile = v && v.length ? v[0].raw : wechatFileList.value
+  if (!currentFile) return
+  const res = await loadImg(currentFile)
+  if (!res) {
     return NotifyPlugin.error({
       title: 'Error',
-      content: '请上传正确的 微信 收款码',
+      content: '无法识别二维码内容',
     })
+  }
+
+  // 如果包含支付宝特征, 则自动填入支付宝输入框
+  if (alipayWhiteList.some((i: string) => String(res).toLowerCase().includes(i))) {
+    alipayFileList.value = currentFile
+    alipayVal.value = String(res)
+    alipayQrcodeImg.value = await drawQR(alipayVal.value, true)
+    showQrcode()
+    return
+  }
+
+  // 其他情况默认为微信收款码
+  wechatFileList.value = currentFile
   wechatVal.value = String(res)
   wechatQrcodeImg.value = await drawQR(wechatVal.value)
   showQrcode()

@@ -12,17 +12,6 @@
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.ts"></script>
-  <script>
-    // 个人统计代码 可删除(开源项目：https://analytics.vvhan.com)
-    const visitInit = () => {
-      const script = document.createElement('script');
-      script.src = 'https://analytics.vvhan.com/tracker.min.js';
-      script.dataset.websiteId = 'Hello-PayQrcode';
-      script.async = true;
-      document.body.appendChild(script);
-    }
-    (window.location.hostname == 'pay-qrcode.4ce.cn') && visitInit();
-  </script>
 </body>
 
 </html>
