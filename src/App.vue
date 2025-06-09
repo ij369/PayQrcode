@@ -58,7 +58,7 @@
   <footer class="footer">
     <p class="footer-text">
       <t-icon name="logo-github" class="github-icon" title="github-link"/>&nbsp;
-      <t-link theme="primary" underline href="https://github.com/uxiaohan/PayQrcode" target="_blank">本项目</t-link> 基于开源项目
+      <t-link theme="primary" underline href="https://github.com/ij369/PayQrcode" target="_blank">本项目</t-link> 基于开源项目
       <t-link theme="primary" underline href="https://github.com/uxiaohan/PayQrcode" target="_blank">uxiaohan/PayQrcode</t-link>
       二次修改, 均可在本地浏览器实现离线生成。
     </p>
